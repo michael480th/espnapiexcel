@@ -1,8 +1,8 @@
-# Free Agents Paged Query
+# All Players Paged Query
 
-**Query Name:** `FreeAgentsPaged`
+**Query Name:** `AllPlayersPaged`
 
-Extracts available free agents with pagination support for large datasets.
+Extracts all players (both rostered and free agents) with pagination support for large datasets.
 
 ```powerquery-m
 let
@@ -35,13 +35,8 @@ let
     jsonData = Json.Document(response),
     allPlayers = try jsonData[players] otherwise {},
     
-    // Filter for free agents (players not on any team)
-    freeAgents = List.Select(allPlayers, each 
-        try _[onTeamId] = 0 otherwise false
-    ),
-    
-    // Process each free agent using the correct nested structure
-    processedPlayers = List.Transform(freeAgents, each [
+    // Process each player using the correct nested structure
+    processedPlayers = List.Transform(allPlayers, each [
         LeagueId = Parameters[LeagueId],
         Season = Parameters[Season],
         ScoringPeriodId = currentScoringPeriod,
@@ -75,7 +70,18 @@ let
         // Top-level fields
         OnTeamId = try _[onTeamId] otherwise 0,
         DraftAuctionValue = try _[draftAuctionValue] otherwise 0,
-        KeeperValue = try _[keeperValue] otherwise 0
+        KeeperValue = try _[keeperValue] otherwise 0,
+        KeeperValueFuture = try _[keeperValueFuture] otherwise 0,
+        LineupLocked = try _[lineupLocked] otherwise false,
+        RosterLocked = try _[rosterLocked] otherwise false,
+        TradeLocked = try _[tradeLocked] otherwise false,
+        Status = try _[status] otherwise "",
+        
+        // Draft rankings
+        DraftRankStandard = try _[player][draftRanksByRankType][STANDARD][rank] otherwise 0,
+        DraftRankPPR = try _[player][draftRanksByRankType][PPR][rank] otherwise 0,
+        DraftAuctionValueStandard = try _[player][draftRanksByRankType][STANDARD][auctionValue] otherwise 0,
+        DraftAuctionValuePPR = try _[player][draftRanksByRankType][PPR][auctionValue] otherwise 0
     ]),
     
     // Convert to table
@@ -88,8 +94,9 @@ let
     requiredColumns = {
         "LeagueId", "Season", "ScoringPeriodId", "PlayerId", "PlayerName", "PlayerFirstName", "PlayerLastName",
         "DefaultPositionId", "EligibleSlots", "IsActive", "IsInjured", "IsDroppable", "InjuryStatus",
-        "ProTeamId", "PercentOwned", "PercentStarted", "AppliedStatTotal", "ProjectedPoints",
-        "UniverseId", "Status"
+        "ProTeamId", "PercentOwned", "PercentStarted", "Jersey", "LastNewsDate", "LastVideoDate",
+        "OnTeamId", "DraftAuctionValue", "KeeperValue", "KeeperValueFuture", "LineupLocked", "RosterLocked", 
+        "TradeLocked", "Status", "DraftRankStandard", "DraftRankPPR", "DraftAuctionValueStandard", "DraftAuctionValuePPR"
     },
     finalTable = Lib[EnsureColumns](sortedTable, requiredColumns)
 in

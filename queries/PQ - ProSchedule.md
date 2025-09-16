@@ -1,11 +1,13 @@
 # Pro Schedule Query
 
+**Query Name:** `ProSchedule`
+
 Extracts NFL team schedules and game information.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGet](Lib[BuildUrl](Parameters[Season], Parameters[LeagueId], {"proTeamSchedules_wl"})),
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"proTeamSchedules_wl"}),
     proTeams = Lib[SafeNestedList](data, {"settings", "proTeams"}),
     
     // Process each pro team

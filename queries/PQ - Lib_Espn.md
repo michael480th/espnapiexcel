@@ -1,8 +1,3 @@
-# Power Query Library - Lib_Espn
-
-Shared Power Query (M) library for ESPN Fantasy Football API integration.
-
-```powerquery-m
 let
     // =============================================================================
     // ESPN Fantasy Football Power Query Library
@@ -255,49 +250,3 @@ let
 
 in
     Lib_Espn
-```
-
-## Usage Examples
-
-### Basic League Data
-```powerquery-m
-let
-    Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](2024, "123456", {"mTeam", "mSettings"}),
-    teams = Lib[TableFromListOfRecords](Lib[SafeNestedList](data, {"teams"}))
-in
-    teams
-```
-
-### Paginated Free Agents
-```powerquery-m
-let
-    Lib = Lib_Espn,
-    makeUrl = (offset, pageSize) => 
-        Lib[BuildUrl](2024, "123456", {"kona_player_info"}, [
-            scoringPeriodId = 1,
-            limit = pageSize,
-            offset = offset
-        ]),
-    extract = (data) => Lib[SafeNestedList](data, {"players"}),
-    allPlayers = Lib[Paginate](0, 200, makeUrl, extract),
-    table = Lib[TableFromListOfRecords](allPlayers)
-in
-    table
-```
-
-### Safe Data Extraction
-```powerquery-m
-let
-    Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](2024, "123456", {"mTeam"}),
-    teams = Lib[SafeNestedList](data, {"teams"}),
-    processedTeams = List.Transform(teams, each [
-        TeamId = Lib[SafeNumber](Lib[SafeRecordField](_, "id", 0)),
-        TeamName = Lib[SafeText](Lib[SafeRecordField](_, "name", "")),
-        OwnerName = Lib[SafeText](Lib[SafeNestedRecord](_, {"owners", 0, "displayName"}))
-    ]),
-    table = Lib[TableFromListOfRecords](processedTeams)
-in
-    table
-```

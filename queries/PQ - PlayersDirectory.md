@@ -1,19 +1,26 @@
 # Players Directory Query
 
+**Query Name:** `PlayersDirectory`
+
 Extracts the complete player database with basic player information.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
     
-    // Get all players from the players endpoint
-    data = Lib[JsonGet](Lib[BuildUrl](Parameters[Season], Parameters[LeagueId], {"players_wl"})),
-    players = Lib[SafeNestedList](data, {}),
+    // Get current scoring period from league settings
+    leagueSettings = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mSettings"}),
+    currentScoringPeriod = try leagueSettings[status][latestScoringPeriod] otherwise 1,
+    
+    // Use players_wl endpoint
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"players_wl"}),
+    players = Lib[SafeNestedList](data, {"players"}),
     
     // Process each player
     processedPlayers = List.Transform(players, each [
         LeagueId = Parameters[LeagueId],
         Season = Parameters[Season],
+        ScoringPeriodId = currentScoringPeriod,
         
         // Player information
         PlayerId = Lib[SafeNumber](Lib[SafeRecordField](_, "id", 0)),
@@ -46,7 +53,7 @@ let
     
     // Ensure all columns exist
     requiredColumns = {
-        "LeagueId", "Season", "PlayerId", "PlayerName", "PlayerFirstName", "PlayerLastName",
+        "LeagueId", "Season", "ScoringPeriodId", "PlayerId", "PlayerName", "PlayerFirstName", "PlayerLastName",
         "DefaultPositionId", "EligibleSlots", "IsActive", "IsInjured", "IsDroppable",
         "ProTeamId", "PercentOwned", "UniverseId"
     },

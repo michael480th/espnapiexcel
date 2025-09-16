@@ -1,11 +1,13 @@
 # Schedule Query
 
+**Query Name:** `Schedule`
+
 Extracts the full season schedule with matchup information.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](Parameters[Season], Parameters[LeagueId], {"mMatchup"}),
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mMatchup"}),
     schedule = Lib[SafeNestedList](data, {"schedule"}),
     
     // Process each matchup

@@ -1,12 +1,18 @@
 # Matchups By Week Query
 
+**Query Name:** `MatchupsByWeek`
+
 Extracts weekly matchup scores and results for a specific scoring period.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](Parameters[Season], Parameters[LeagueId], {"mMatchupScore"}, [
-        scoringPeriodId = Parameters[ScoringPeriodId]
+    // Get current scoring period from league settings
+    leagueSettings = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mSettings"}),
+    currentScoringPeriod = try leagueSettings[status][latestScoringPeriod] otherwise 1,
+    
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mMatchupScore"}, [
+        scoringPeriodId = currentScoringPeriod
     ]),
     schedule = Lib[SafeNestedList](data, {"schedule"}),
     
@@ -14,7 +20,7 @@ let
     processedMatchups = List.Transform(schedule, each [
         LeagueId = Parameters[LeagueId],
         Season = Parameters[Season],
-        ScoringPeriodId = Parameters[ScoringPeriodId],
+        ScoringPeriodId = currentScoringPeriod,
         MatchupId = Lib[SafeNumber](Lib[SafeRecordField](_, "id", 0)),
         MatchupPeriodId = Lib[SafeNumber](Lib[SafeRecordField](_, "matchupPeriodId", 0)),
         PlayoffTierType = Lib[SafeText](Lib[SafeRecordField](_, "playoffTierType", "")),

@@ -1,11 +1,13 @@
 # Draft Results Query
 
+**Query Name:** `DraftResults`
+
 Extracts draft picks, rounds, and draft details.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](Parameters[Season], Parameters[LeagueId], {"mDraftDetail"}),
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mDraftDetail"}),
     draftDetail = Lib[SafeNestedRecord](data, {"draftDetail"}),
     
     // Check if draft exists

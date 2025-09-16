@@ -1,11 +1,13 @@
 # Standings Query
 
+**Query Name:** `Standings`
+
 Extracts current league standings and team records.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](Parameters[Season], Parameters[LeagueId], {"mStandings"}),
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mStandings"}),
     teams = Lib[SafeNestedList](data, {"teams"}),
     
     // Process each team for standings

@@ -14,14 +14,13 @@ let
     // Create Parameters for ESPN Fantasy Football
     Parameters = [
         // Core Parameters
-        LeagueId = "123456",                    // Your ESPN League ID
-        Season = 2024,                          // Fantasy season year
-        ScoringPeriodId = 1,                    // Week number (1-18)
+        LeagueId = "169608",                    // Your ESPN League ID
+        Season = 2025,                          // Fantasy season year
         BaseUrl = "https://lm-api-reads.fantasy.espn.com/apis/v3/games/ffl/seasons/",
         
         // Authentication Parameters
-        Cookies_espn_s2 = "",                   // ESPN S2 cookie (for private leagues)
-        Cookies_swid = "",                      // ESPN SWID cookie (for private leagues)
+        Cookies_espn_s2 = "AEBH9dUFpFESaSZ41jrpJADdJ%2BgPtq5ve0Kd1X1ciZzCwFO1GXOLGvuBTjbak16T%2B8215edLGQSNfKvq5KrK4rTxFNA%2BFmWwntH8CBrHiFzRh3poPfiRZtWzsCX2EcnPG6Z5vwQzRa4U4iQnbNOUirY9lpkGn%2BYCiaO17v7L2bH9qRRguRFbWbdVFamY8yUhwUXVQiyA7FkqbuTy1W%2BFObPLJkZlZ0rSAMcrwYR5m9M8GQdL96lHlBQ5v6RpBh7LLBgJnWFhz%2FKZtkQCwR66S29n%2BS3SeEGTQ8%2F%2BrXzULYw1dA%3D%3D",                   // ESPN S2 cookie (for private leagues)
+        Cookies_swid = "{D1E8976F-5D4C-4E75-AEAC-26ACCCFA7017}",                      // ESPN SWID cookie (for private leagues)
         UsePublicOnly = false,                  // Set to true for public leagues only
         
         // Performance Parameters

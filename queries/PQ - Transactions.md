@@ -1,12 +1,18 @@
 # Transactions Query
 
+**Query Name:** `Transactions`
+
 Extracts transaction history including adds, drops, trades, and waivers.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](Parameters[Season], Parameters[LeagueId], {"mTransactions2"}, [
-        scoringPeriodId = Parameters[ScoringPeriodId]
+    // Get current scoring period from league settings
+    leagueSettings = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mSettings"}),
+    currentScoringPeriod = try leagueSettings[status][latestScoringPeriod] otherwise 1,
+    
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mTransactions2"}, [
+        scoringPeriodId = currentScoringPeriod
     ]),
     transactions = Lib[SafeNestedList](data, {"transactions"}),
     
@@ -14,7 +20,7 @@ let
     processedTransactions = List.Transform(transactions, each [
         LeagueId = Parameters[LeagueId],
         Season = Parameters[Season],
-        ScoringPeriodId = Parameters[ScoringPeriodId],
+        ScoringPeriodId = currentScoringPeriod,
         
         // Transaction information
         TransactionId = Lib[SafeNumber](Lib[SafeRecordField](_, "id", 0)),

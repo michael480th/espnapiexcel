@@ -1,12 +1,18 @@
 # Rosters By Week Query
 
+**Query Name:** `RostersByWeek`
+
 Extracts weekly roster compositions and player information for a specific scoring period.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](Parameters[Season], Parameters[LeagueId], {"mRoster"}, [
-        scoringPeriodId = Parameters[ScoringPeriodId]
+    // Get current scoring period from league settings
+    leagueSettings = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mSettings"}),
+    currentScoringPeriod = try leagueSettings[status][latestScoringPeriod] otherwise 1,
+    
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mRoster"}, [
+        scoringPeriodId = currentScoringPeriod
     ]),
     teams = Lib[SafeNestedList](data, {"teams"}),
     
@@ -22,7 +28,7 @@ let
             players = List.Transform(rosterList, each [
                 LeagueId = Parameters[LeagueId],
                 Season = Parameters[Season],
-                ScoringPeriodId = Parameters[ScoringPeriodId],
+                ScoringPeriodId = currentScoringPeriod,
                 TeamId = teamId,
                 TeamName = teamName,
                 

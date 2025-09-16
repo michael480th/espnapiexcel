@@ -1,11 +1,13 @@
 # Teams Query
 
+**Query Name:** `Teams`
+
 Extracts team information, owners, and basic team data.
 
 ```powerquery-m
 let
     Lib = Lib_Espn,
-    data = Lib[JsonGetWithView](Parameters[Season], Parameters[LeagueId], {"mTeam"}),
+    data = Lib[JsonGetWithView](Parameters[Season], Text.From(Parameters[LeagueId]), {"mTeam"}),
     teams = Lib[SafeNestedList](data, {"teams"}),
     
     // Process each team
